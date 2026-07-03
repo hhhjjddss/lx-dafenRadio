@@ -23,7 +23,7 @@
 ###   全屏模式
 沉浸式全屏播放体验，尽享音乐。
 
-![1783067898075](C:\Users\LD\AppData\Roaming\Typora\typora-user-images\1783067898075.png)
+![](https://p.sda1.dev/33/1523a1c5599232b955874d6f153aa6a5/image.png)
 
 ![](https://p.sda1.dev/33/5f5c990a626a39e8c95490e2880ee037/屏幕录制 2026-07-03 162458.gif)
 
