@@ -9,11 +9,15 @@
 ###   液态玻璃界面
 采用毛玻璃设计语言，光影流动，视觉沉浸。
 
+![1783044809131](C:\Users\LD\AppData\Roaming\Typora\typora-user-images\1783044809131.png)
+
 ###   黑胶唱片
 仿真黑胶旋转效果，唱针随播放状态联动。
 
+
+
 ###   粒子封面
-专辑封面以粒子形态呈现，支持多档画质切换。
+专辑封面以粒子形态呈现，考虑到机型功耗原因,支持多档画质切换。
 
 ###   歌词滚动
 实时滚动歌词，支持翻译歌词，点击歌词可跳转播放。
@@ -36,10 +40,10 @@
 
 **DaFen Radio** 是一款完全基于 [lx-music](https://github.com/lyswhut/lx-music-desktop) 音源协议开发的桌面音乐播放器。
 
-开发灵感来源于 **MineRadio**，在此基础上进行了全新的 UI 设计与功能优化。
+开发灵感来源于 **MineRadio**，进行了全新的 UI 设计与功能优化。
 
 ⚠️ **当前版本：Beta 测试版**
-本应用仍处于内测阶段，可能存在不完善之处，欢迎用户体验并提出宝贵的升级建议！
+本应用仍处于内测阶段，可能存在不完善之处，欢迎用户体验并提出宝贵的升级建议！提供了exe安装包,无需拉取项目!后期会开源所有代码!
 
 ---
 
@@ -81,7 +85,13 @@ npm run build:unpack
    - **在线链接**：粘贴音源 URL
 3. 导入后点击「使用」即可激活
 
-音源获取方式：GitHub 搜索 `lx-music-source`
+音源获取方式：GitHub 搜索 `lx-music-source`,或者
+
+```
+https://raw.githubusercontent.com/pdone/lx-music-source/main/lx/latest.js
+```
+
+项目基于lx开发,但仍可尝试其他来源音源,可发聩开发者基于宝贵建议
 
 ---
 
