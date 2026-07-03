@@ -9,17 +9,19 @@
 ###   液态玻璃界面/黑胶唱片3D/音源管理/主题切换
 采用毛玻璃设计语言，光影流动，视觉沉浸。
 
-[![pmwfG36.png](https://s41.ax1x.com/2026/07/03/pmwfG36.png)](https://imgchr.com/i/pmwfG36)
+[![pmwfG36.png](https://s41.ax1x.com/2026/07/03/pmwfG36.png)
+
+![](https://p.sda1.dev/33/604378be2c04510c214f0a08a3875cd4/image.png)
 
 ###   粒子封面/歌词滚动/收藏管理
 专辑封面以粒子形态呈现，考虑到机型功耗原因,支持多档画质切换。
 
-[![pmwf141.png](https://s41.ax1x.com/2026/07/03/pmwf141.png)](https://imgchr.com/i/pmwf141)
+![dd](https://p.sda1.dev/33/1b269313178d515c4ff406e828166381/屏幕录制 2026-07-03 162116.gif)
 
 ###   全屏模式
 沉浸式全屏播放体验，尽享音乐。
 
-[![d](https://s41.ax1x.com/2026/07/03/pmwc2zF.png)](https://imgchr.com/i/pmwc2zF)
+![](https://p.sda1.dev/33/5f5c990a626a39e8c95490e2880ee037/屏幕录制 2026-07-03 162458.gif)
 
 ---
 
@@ -36,9 +38,11 @@
 
 ##   Beta版本安装程序:
 
-[v1.0.0 Beta 测试版]()
+[v1.0.0 Beta 测试版](https://github.com/hhhjjddss/dafen-radio-LX-/tree/main)
 
 ### 快速开始
+
+
 
 ### 环境要求
 - Node.js 18+
