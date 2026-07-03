@@ -6,33 +6,20 @@
 
 ## ✨ 功能展示
 
-###   液态玻璃界面
+###   液态玻璃界面/黑胶唱片3D/音源管理/主题切换
 采用毛玻璃设计语言，光影流动，视觉沉浸。
 
-![1783044809131](C:\Users\LD\AppData\Roaming\Typora\typora-user-images\1783044809131.png)
+![d](https://raw.giteeusercontent.com/dafen6611/dafen-images/raw/master/Snipaste_2026-07-03_10-26-21.png)
 
-###   黑胶唱片
-仿真黑胶旋转效果，唱针随播放状态联动。
-
-
-
-###   粒子封面
+###   粒子封面/歌词滚动/收藏管理
 专辑封面以粒子形态呈现，考虑到机型功耗原因,支持多档画质切换。
 
-###   歌词滚动
-实时滚动歌词，支持翻译歌词，点击歌词可跳转播放。
-
-###   收藏管理
-一键收藏喜爱歌曲，支持顺序/循环/随机多种播放模式。
-
-###   音源扩展
-支持导入 lx-music 格式音源脚本，音乐资源无限拓展。
-
-###   主题切换
-内置蓝紫/粉色两套主题，一键切换风格。
+![dd](https://raw.giteeusercontent.com/dafen6611/dafen-images/raw/master/Snipaste_2026-07-03_10-35-44.png)
 
 ###   全屏模式
 沉浸式全屏播放体验，尽享音乐。
+
+[![d](https://s41.ax1x.com/2026/07/03/pmwc2zF.png)](https://imgchr.com/i/pmwc2zF)
 
 ---
 
