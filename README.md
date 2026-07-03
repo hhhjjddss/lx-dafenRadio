@@ -18,8 +18,12 @@
 
 ![](https://p.sda1.dev/33/1b269313178d515c4ff406e828166381/屏幕录制 2026-07-03 162116.gif)
 
+![](https://p.sda1.dev/33/b0b1ec7357006b107797073194b294ca/image.png)
+
 ###   全屏模式
 沉浸式全屏播放体验，尽享音乐。
+
+![1783067898075](C:\Users\LD\AppData\Roaming\Typora\typora-user-images\1783067898075.png)
 
 ![](https://p.sda1.dev/33/5f5c990a626a39e8c95490e2880ee037/屏幕录制 2026-07-03 162458.gif)
 
