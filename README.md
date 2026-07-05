@@ -1,74 +1,64 @@
 # DaFen Radio
 
->  Beta 测试版 · 基于 lx-music 音源的音乐播放器
+>  基于 lx-music 音源的桌面音乐播放器
 
 ---
 
-## ✨ 功能展示
+## ✨ 功能特性
 
-###   液态玻璃界面/黑胶唱片3D/音源管理/主题切换
+###   液态玻璃界面
 采用毛玻璃设计语言，光影流动，视觉沉浸。
-
-[![pmwfG36.png](https://s41.ax1x.com/2026/07/03/pmwfG36.png)
 
 ![](https://p.sda1.dev/33/604378be2c04510c214f0a08a3875cd4/image.png)
 
-###   粒子封面/歌词滚动/收藏管理
-专辑封面以粒子形态呈现，考虑到机型功耗原因,支持多档画质切换。
-
-
+###   黑胶唱片 / 粒子封面
+- 模拟真实黑胶唱片机效果，含唱针动画
+- 专辑封面以粒子形态呈现，支持 3D 拖拽旋转
+- 多档画质切换，适配不同机型功耗
 
 ![](https://p.sda1.dev/33/b0b1ec7357006b107797073194b294ca/image.png)
+
+###   歌词滚动
+支持双语歌词 + 自动滚动，活跃行 3D 弹出效果。
 
 ###   全屏模式
 沉浸式全屏播放体验，尽享音乐。
 
-![dd](https://p.sda1.dev/33/1523a1c5599232b955874d6f153aa6a5/image.png)
+![](https://p.sda1.dev/33/1523a1c5599232b955874d6f153aa6a5/image.png)
+
+###   其他功能
+- ✅ 收藏管理（本地持久化）
+- ✅ 播放队列管理
+- ✅ LX 音源支持（本地文件 / 在线链接）
+- ✅ 窗口状态记忆
+- ✅ 快捷键支持
 
 ---
 
-##   关于本项目
+##   下载安装
 
-**DaFen Radio** 是一款完全基于 [lx-music](https://github.com/lyswhut/lx-music-desktop) 音源协议开发的桌面音乐播放器。
+### 方式一：下载安装包（推荐）
 
-开发灵感来源于 **MineRadio**，进行了全新的 UI 设计与功能优化。
+**[👉 点击前往 Releases 页面下载最新版本](https://github.com/hhhjjddss/dafen-radio-LX-/releases)**
 
-⚠️ **当前版本：Beta 测试版**
-本应用仍处于内测阶段，可能存在不完善之处，欢迎用户体验并提出宝贵的升级建议！提供了exe安装包,无需拉取项目!后期会开源所有代码!
-
----
-
-##   Beta版本安装程序:
-
-[v1.0.0 Beta 测试版](https://github.com/hhhjjddss/dafen-radio-LX-/tree/main)
-
-### 快速开始
-
-
-
-### 环境要求
-- Node.js 18+
-- npm 或 pnpm
-
-### 安装与运行
+### 方式二：自行构建
 
 ```bash
+# 克隆项目
+git clone https://github.com/hhhjjddss/dafen-radio-LX-.git
+cd dafen-radio-LX-
+
 # 安装依赖
 npm install
 
 # 启动开发版
 npm run dev
-```
 
-### 打包发布
-
-```bash
-# 生成安装程序（.exe）
+# 打包成 exe 安装程序
 npm run build:win
-
-# 生成便携版（文件夹）
-npm run build:unpack
 ```
+
+**环境要求**：Node.js 18+
 
 ---
 
@@ -82,13 +72,10 @@ npm run build:unpack
    - **在线链接**：粘贴音源 URL
 3. 导入后点击「使用」即可激活
 
-音源获取方式：GitHub 搜索 `lx-music-source`,或者
-
+**推荐音源**：
 ```
 https://raw.githubusercontent.com/pdone/lx-music-source/main/lx/latest.js
 ```
-
-项目基于lx开发,但仍可尝试其他来源音源,可发聩开发者基于宝贵建议
 
 ---
 
@@ -101,9 +88,15 @@ https://raw.githubusercontent.com/pdone/lx-music-source/main/lx/latest.js
 
 ---
 
-##  反馈与建议
+##   更新日志
 
-本项目处于 Beta 测试阶段，非常欢迎用户反馈：
+详见 [Releases](https://github.com/hhhjjddss/dafen-radio-LX-/releases)
+
+---
+
+##   反馈与建议
+
+欢迎用户反馈：
 
 - 提交 Issue 报告问题
 - 分享使用体验
