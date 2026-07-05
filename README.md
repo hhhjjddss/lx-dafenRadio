@@ -1,5 +1,8 @@
 # DaFen Radio
 
+[![GitHub Release](https://img.shields.io/github/v/release/hhhjjddss/dafen-radio-LX-?style=flat-square)](https://github.com/hhhjjddss/dafen-radio-LX-/releases/latest)
+[![GitHub Downloads](https://img.shields.io/github/downloads/hhhjjddss/dafen-radio-LX-/total?style=flat-square&color=blue)](https://github.com/hhhjjddss/dafen-radio-LX-/releases)
+
 >  基于 lx-music 音源的桌面音乐播放器
 
 ---
