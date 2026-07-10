@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+:root {
+  /* === Color System: Liquid Glass === */
+  --bg-deep: #0d0b14;
+  --bg-primary: #13111c;
+  --bg-secondary: rgba(22, 20, 34, 0.45);
+  --bg-elevated: rgba(35, 32, 52, 0.35);
+  --bg-surface: rgba(45, 42, 65, 0.3);
+  --bg-hover: rgba(55, 50, 80, 0.35);
+  --bg-active: rgba(65, 58, 95, 0.4);
+
+  --amber: #D4A853;
+  --amber-dim: #b8903e;
+  --amber-glow: rgba(212, 168, 83, 0.35);
+  --amber-bright: #E8C06A;
+  --copper: #C17F4E;
+  --ruby: #C85A5A;
+  --emerald: #5AD4A0;
+  --emerald-dim: rgba(90, 212, 160, 0.15);
+
+  --text-cream: #F5EDE0;
+  --text-warm: #D0C4AE;
+  --text-muted: #9A8F7A;
+  --text-ghost: #6A6058;
+
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-bg-hover: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-hover: rgba(255, 255, 255, 0.15);
+  --glass-shine: rgba(255, 255, 255, 0.05);
+  --glass-refraction: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+
+  --amber-highlight: rgba(212, 168, 83, 0.18);
+  --amber-glass: rgba(212, 168, 83, 0.08);
+  --amber-border: rgba(212, 168, 83, 0.15);
+  --amber-focus: rgba(212, 168, 83, 0.25);
+  --amber-hover: rgba(212, 168, 83, 0.3);
+  --amber-glow-sm: rgba(212, 168, 83, 0.1);
+  --amber-glow-md: rgba(212, 168, 83, 0.25);
+  --amber-glow-lg: rgba(212, 168, 83, 0.4);
+  --amber-shadow: rgba(212, 168, 83, 0.35);
+
+  --border-warm: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+
+  --shadow-warm: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.5);
+  --shadow-amber: 0 0 30px rgba(212, 168, 83, 0.15);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-glass-hover: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  --blur-glass: 24px;
+  --blur-heavy: 48px;
+
+  --font-display: 'Cormorant Garamond', 'Noto Serif SC', Georgia, serif;
+  --font-body: 'DM Sans', 'Noto Sans SC', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 36px;
+  --space-2xl: 48px;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-full: 9999px;
+
+  --t-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --t-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --t-spring: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 粉色主题 - 樱花 */
+.theme-pink {
+  --bg-deep: #150f17;
+  --bg-primary: #1e1722;
+  --bg-secondary: rgba(40, 28, 45, 0.45);
+  --bg-elevated: rgba(58, 42, 62, 0.35);
+  --bg-surface: rgba(75, 55, 80, 0.3);
+  --bg-hover: rgba(90, 65, 95, 0.35);
+  --bg-active: rgba(110, 80, 115, 0.4);
+
+  --amber: #E8849B;
+  --amber-dim: #d06a82;
+  --amber-glow: rgba(232, 132, 155, 0.35);
+  --amber-bright: #F2A0B5;
+  --copper: #D4789A;
+  --ruby: #C85A5A;
+  --emerald: #5AD4A0;
+  --emerald-dim: rgba(90, 212, 160, 0.15);
+
+  --text-cream: #F8E8EE;
+  --text-warm: #D8BCC8;
+  --text-muted: #A88A98;
+  --text-ghost: #7A6272;
+
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-hover: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.14);
+
+  --shadow-amber: 0 0 30px rgba(232, 132, 155, 0.15);
+
+  --amber-highlight: rgba(232, 132, 155, 0.18);
+  --amber-glass: rgba(232, 132, 155, 0.08);
+  --amber-border: rgba(232, 132, 155, 0.15);
+  --amber-focus: rgba(232, 132, 155, 0.25);
+  --amber-hover: rgba(232, 132, 155, 0.3);
+  --amber-glow-sm: rgba(232, 132, 155, 0.1);
+  --amber-glow-md: rgba(232, 132, 155, 0.25);
+  --amber-glow-lg: rgba(232, 132, 155, 0.4);
+  --amber-shadow: rgba(232, 132, 155, 0.35);
+}
+
+/* 经典白色主题 */
+.theme-classic {
+  --bg-deep: #e8e8e8;
+  --bg-primary: #f5f5f5;
+  --bg-secondary: rgba(240, 240, 240, 0.95);
+  --bg-elevated: rgba(245, 245, 245, 0.98);
+  --bg-surface: rgba(248, 248, 248, 0.98);
+  --bg-hover: rgba(235, 235, 235, 0.95);
+  --bg-active: rgba(225, 225, 225, 0.98);
+
+  --amber: #b8942e;
+  --amber-dim: #a08020;
+  --amber-glow: rgba(184, 148, 46, 0.15);
+  --amber-bright: #c8a438;
+  --copper: #a07030;
+  --ruby: #c04040;
+  --emerald: #2d9d68;
+  --emerald-dim: rgba(45, 157, 104, 0.1);
+
+  --text-cream: #1a1a1a;
+  --text-warm: #333333;
+  --text-muted: #666666;
+  --text-ghost: #999999;
+
+  --glass-bg: rgba(0, 0, 0, 0.03);
+  --glass-bg-hover: rgba(0, 0, 0, 0.06);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-border-hover: rgba(0, 0, 0, 0.15);
+  --glass-shine: rgba(255, 255, 255, 0.8);
+
+  --amber-highlight: rgba(184, 148, 46, 0.12);
+  --amber-glass: rgba(184, 148, 46, 0.08);
+  --amber-border: rgba(184, 148, 46, 0.25);
+  --amber-focus: rgba(184, 148, 46, 0.3);
+  --amber-hover: rgba(184, 148, 46, 0.15);
+  --amber-glow-sm: rgba(184, 148, 46, 0.08);
+  --amber-glow-md: rgba(184, 148, 46, 0.15);
+  --amber-glow-lg: rgba(184, 148, 46, 0.25);
+  --amber-shadow: rgba(184, 148, 46, 0.2);
+
+  --border-warm: rgba(0, 0, 0, 0.1);
+  --border-subtle: rgba(0, 0, 0, 0.06);
+
+  --shadow-warm: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.1);
+  --shadow-amber: 0 0 20px rgba(184, 148, 46, 0.1);
+  --shadow-glass: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-glass-hover: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-body);
+  background: var(--bg-deep);
+  color: var(--text-cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 沉浸播放模式 — 全部透明，透出桌面 */
+html.immersive-mode,
+html.immersive-mode body,
+html.immersive-mode #app {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+html.immersive-mode #app::after {
+  display: none !important;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 噪点纹理 — 已关闭（feTurbulence 严重影响性能） */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+input, button, textarea {
+  font-family: inherit;
+  outline: none;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--amber);
+  color: #0d0b14;
+}
+
+/* 通用液态玻璃 - 毛玻璃风格 */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+.glass:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--shadow-glass-hover);
+}

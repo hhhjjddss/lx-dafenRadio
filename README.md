@@ -19,7 +19,7 @@
 - 专辑封面以粒子形态呈现，支持 3D 拖拽旋转
 - 多档画质切换，适配不同机型功耗
 
-![](https://p.sda1.dev/33/b0b1ec7357006b107797073194b294ca/image.png)
+![](https://p.sda1.dev/33/d93ef4f22440a5c78182224fab1cb121/image.png)
 
 ###   歌词滚动
 支持双语歌词 + 自动滚动，活跃行 3D 弹出效果。
@@ -35,6 +35,8 @@
 - ✅ LX 音源支持（本地文件 / 在线链接）
 - ✅ 窗口状态记忆
 - ✅ 快捷键支持
+- ✅ 歌单功能
+- ✅ 主题切换
 
 ---
 
@@ -91,12 +93,6 @@ https://raw.githubusercontent.com/pdone/lx-music-source/main/lx/latest.js
 
 ---
 
-##   更新日志
-
-详见 [Releases](https://github.com/hhhjjddss/dafen-radio-LX-/releases)
-
----
-
 ##   反馈与建议
 
 欢迎用户反馈：
@@ -114,6 +110,7 @@ https://raw.githubusercontent.com/pdone/lx-music-source/main/lx/latest.js
 - 本应用仅供学习交流使用，请勿用于商业用途
 - 音源由第三方提供，本应用不托管任何音乐资源
 - 音乐版权归原作者/公司所有
+- 原生的LX播放器地址：[LX-music-desktop](https://github.com/lyswhut/lx-music-desktop)
 
 ---
 
