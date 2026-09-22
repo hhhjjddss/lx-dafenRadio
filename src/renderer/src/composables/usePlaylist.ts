@@ -19,6 +19,13 @@ export function usePlaylist() {
     index: currentIndex
   })
 
+  // 手动切歌时同步队列索引（doPlay(x, false) 不会更新 currentIndex）
+  const setCurrentIndex = (index: number) => {
+    if (index >= 0 && index < playQueue.length) {
+      currentIndex = index
+    }
+  }
+
   // 播放下一首
   const getNextTrack = (playMode: PlayMode): MusicInfo | null => {
     if (playQueue.length === 0) return null
@@ -91,6 +98,7 @@ export function usePlaylist() {
   return {
     setPlayQueue,
     getCurrentInfo,
+    setCurrentIndex,
     getNextTrack,
     getPrevTrack
   }

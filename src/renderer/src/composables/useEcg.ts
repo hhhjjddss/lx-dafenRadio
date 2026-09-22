@@ -107,31 +107,27 @@ export function useEcg(getAudioEnergy: () => number, getFrequencyData: () => Uin
     ctx.stroke()
     ctx.setLineDash([])
 
-    // 外层发光
+    // 外层发光（用粗线+低透明度模拟模糊，避免 canvas filter）
     ctx.beginPath()
-    ctx.strokeStyle = `rgba(212, 168, 83, ${0.15 + currentEnergy * 0.2})`
-    ctx.lineWidth = 8
+    ctx.strokeStyle = `rgba(212, 168, 83, ${0.08 + currentEnergy * 0.1})`
+    ctx.lineWidth = 10
     ctx.lineJoin = 'round'
     ctx.lineCap = 'round'
-    ctx.filter = 'blur(6px)'
     for (let i = 0; i < ecgSmoothPoints.length; i++) {
       if (i === 0) ctx.moveTo(i, ecgSmoothPoints[i])
       else ctx.lineTo(i, ecgSmoothPoints[i])
     }
     ctx.stroke()
-    ctx.filter = 'none'
 
     // 中层光晕
     ctx.beginPath()
-    ctx.strokeStyle = `rgba(212, 168, 83, ${0.3 + currentEnergy * 0.3})`
-    ctx.lineWidth = 4
-    ctx.filter = 'blur(2px)'
+    ctx.strokeStyle = `rgba(212, 168, 83, ${0.2 + currentEnergy * 0.2})`
+    ctx.lineWidth = 5
     for (let i = 0; i < ecgSmoothPoints.length; i++) {
       if (i === 0) ctx.moveTo(i, ecgSmoothPoints[i])
       else ctx.lineTo(i, ecgSmoothPoints[i])
     }
     ctx.stroke()
-    ctx.filter = 'none'
 
     // 主线条
     const gradient = ctx.createLinearGradient(0, 0, ecgWidth, 0)

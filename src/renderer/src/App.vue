@@ -297,7 +297,7 @@ const {
 } = useFavorites()
 
 const {
-  setPlayQueue, getCurrentInfo, getNextTrack, getPrevTrack
+  setPlayQueue, getCurrentInfo, setCurrentIndex, getNextTrack, getPrevTrack
 } = usePlaylist()
 
 const {
@@ -315,7 +315,7 @@ const { isImmersive, enterImmersive, exitImmersive } = useImmersiveMode()
 // 进入沉浸模式 = 全屏 + 沉浸UI（隐藏任务栏）
 const handleEnterImmersive = async () => {
   if (!playerState.isPlaying) {
-    showToast('俺不中了', 'error')
+    showToast('请先播放一首歌曲', 'error')
     return
   }
   enterImmersive()
@@ -399,7 +399,7 @@ onMounted(() => {
 
 function toggleSidebar() {
   if (!playerState.isPlaying) {
-    showToast('俺不中了，要不亲爱的先放一首呢', 'error')
+    showToast('请先播放一首歌曲', 'error')
     return
   }
   sidebarExpanded.value = !sidebarExpanded.value
@@ -417,9 +417,10 @@ function toggleSidebar() {
 function showToast(msg: string, type: 'success' | 'error' | 'loading' = 'success') {
   toastMsg.value = msg
   toastType.value = type
-  // loading类型的toast不自动消失，由调用方手动关闭
+  // loading类型的toast不自动消失，由调用方手动关闭；错误提示文案较长，延长显示
   if (type !== 'loading') {
-    setTimeout(() => { toastMsg.value = '' }, 3000)
+    const dur = type === 'error' ? 5000 : 3000
+    setTimeout(() => { toastMsg.value = '' }, dur)
   }
 }
 
@@ -596,6 +597,7 @@ const handlePrev = async () => {
   if (prevIndex < 0) {
     prevIndex = info.queue.length - 1
   }
+  setCurrentIndex(prevIndex)
   const prevTrack = info.queue[prevIndex]
   if (prevTrack) {
     await doPlay(prevTrack, false)
@@ -606,16 +608,9 @@ const handleNext = async () => {
   const info = getCurrentInfo()
   if (info.queue.length === 0) return
 
-  let nextIndex = info.index + 1
-  if (nextIndex >= info.queue.length) {
-    if (playMode.value === 'repeat-all') {
-      nextIndex = 0
-    } else {
-      return // 顺序播放到最后一首停止
-    }
-  }
-
+  let nextIndex: number
   if (playMode.value === 'shuffle') {
+    // 随机播放：先做随机，避免在队列末尾被边界判断提前 return
     if (info.queue.length === 1) {
       nextIndex = 0
     } else {
@@ -623,8 +618,18 @@ const handleNext = async () => {
         nextIndex = Math.floor(Math.random() * info.queue.length)
       } while (nextIndex === info.index)
     }
+  } else if (playMode.value === 'sequence') {
+    // 顺序播放：手动切歌到最后一首后停止
+    nextIndex = info.index + 1
+    if (nextIndex >= info.queue.length) {
+      return
+    }
+  } else {
+    // 列表循环 / 单曲循环：手动切歌按列表顺序推进并回绕
+    nextIndex = (info.index + 1) % info.queue.length
   }
 
+  setCurrentIndex(nextIndex)
   const nextTrack = info.queue[nextIndex]
   if (nextTrack) {
     await doPlay(nextTrack, false)
@@ -662,13 +667,16 @@ const doPlay = async (track: MusicInfo, addToQueue: boolean = true) => {
 
     setLoading(true)
     showToast('正在获取播放链接…', 'loading')
-    const url = await getMusicUrl(track)
+    const { url, error, hint } = await getMusicUrl(track)
     if (!url) {
       urlFailCount++
-      if (urlFailCount >= 8) {
+      // 有具体原因时优先显示（如「音源脚本版本过低」等确定性错误，等待无用）
+      if (error) {
+        showToast(hint ? `${error}，${hint}` : error, 'error')
+      } else if (urlFailCount >= 8) {
         showToast('请耐心等待音源恢复连接', 'error')
       } else {
-        showToast('俺不中了，获取播放链接失败', 'error')
+        showToast('获取播放链接失败', 'error')
       }
       setLoading(false)
       return
@@ -709,7 +717,12 @@ const playAllFavorites = async () => {
   if (favorites.value.length === 0) return
   // 设置播放队列
   if (playMode.value === 'shuffle') {
-    const shuffled = [...favorites.value].sort(() => Math.random() - 0.5)
+    // Fisher-Yates 洗牌（sort 随机比较有偏）
+    const shuffled = [...favorites.value]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
     setPlayQueue(shuffled, 0)
     await doPlay(shuffled[0], false)
   } else {
@@ -1279,7 +1292,7 @@ watch(() => playerState.currentTrack, (newTrack) => {
 .main-content::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.06); pointer-events: none; z-index: 1; }
 
 /* Toast */
-.toast { position: fixed; top: 52px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 999px; font-size: 12px; box-shadow: 0 4px 30px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); pointer-events: none; }
+.toast { position: fixed; top: 52px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 999px; font-size: 12px; box-shadow: 0 4px 30px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); pointer-events: none; max-width: min(600px, 86vw); white-space: normal; line-height: 1.6; text-align: center; }
 .toast.success { color: #66d9a0; background: rgba(30,60,45,0.75); border: 1.5px solid rgba(102,217,160,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.12); }
 .toast.error { color: #e88; background: rgba(60,30,30,0.75); border: 1.5px solid rgba(200,90,90,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.12); }
 .toast.loading { color: var(--amber); background: rgba(50,40,20,0.75); border: 1.5px solid rgba(212,168,83,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.12); }

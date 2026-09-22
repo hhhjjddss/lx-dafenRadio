@@ -18,7 +18,7 @@ const api = {
   sourceSearch: (keyword: string) => ipcRenderer.invoke('source:search', keyword),
 
   // LX 音源操作
-  sourceGetUrl: (musicInfo: any, quality: string): Promise<string> =>
+  sourceGetUrl: (musicInfo: any, quality: string): Promise<{ success: boolean; data?: string; error?: string; hint?: string }> =>
     ipcRenderer.invoke('source:getUrl', musicInfo, quality),
   sourceGetLyric: (musicInfo: any) => ipcRenderer.invoke('source:getLyric', musicInfo),
   sourceGetPic: (musicInfo: any) => ipcRenderer.invoke('source:getPic', musicInfo),

@@ -242,7 +242,7 @@ let offscreenImg: HTMLImageElement | null = null
 let rafId = 0
 let animFrame = 0
 let lastFrameTime = 0
-const FRAME_INTERVAL = 1000 / 60
+const FRAME_INTERVAL = 1000 / 30
 let rotX = 0, rotY = 0, targetRotX = 0, targetRotY = 0
 const ROTATION_DAMPING = 0.06
 const ripples: { x: number; y: number; birth: number }[] = []

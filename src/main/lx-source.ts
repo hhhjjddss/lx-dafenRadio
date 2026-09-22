@@ -44,6 +44,30 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024
 const INIT_TIMEOUT = 8000
 const ACTION_TIMEOUT = 15000
 
+// 结构化的音源错误信息（reason 显示给用户，hint 为建议操作）
+export interface SourceErrorInfo {
+  reason: string
+  hint?: string
+}
+
+// 识别网络类错误（超时/DNS/拒连等），映射为友好提示
+function classifyError(message: string): SourceErrorInfo {
+  const msg = String(message || '')
+  if (/timeout|超时|ETIMEDOUT|ESOCKETTIMEDOUT/i.test(msg)) {
+    return { reason: '音源响应超时', hint: '音源服务器可能繁忙，稍后再试' }
+  }
+  if (/ENOTFOUND|EAI_AGAIN|getaddrinfo|dns/i.test(msg)) {
+    return { reason: '网络连接失败', hint: '无法解析音源服务器，请检查网络或 DNS' }
+  }
+  if (/ECONNREFUSED|ECONNRESET|ECONNABORTED|EPIPE|socket hang up/i.test(msg)) {
+    return { reason: '网络连接失败', hint: '音源服务器连接中断，请检查网络或稍后再试' }
+  }
+  if (/证书|certificate|SSL|TLS/i.test(msg)) {
+    return { reason: '音源服务器证书异常', hint: '请检查系统时间或稍后再试' }
+  }
+  return { reason: msg || '获取播放链接失败', hint: '稍后再试或更换音源' }
+}
+
 export class LxSourceManager {
   private sourceDir: string
   private configFile: string
@@ -54,6 +78,8 @@ export class LxSourceManager {
   private metadata: LxSourceMeta | null = null
   private sources: Record<string, { name: string; actions: string[]; qualitys: string[] }> = {}
   private handler: ((args: any) => Promise<any>) | null = null
+  // 记录最近一次音源侧的业务错误（用于给用户友好提示）
+  private lastSourceError: SourceErrorInfo | null = null
 
   constructor() {
     // 将 LX 音源数据存储在项目文件夹的 data/lx-sources 目录
@@ -110,7 +136,7 @@ export class LxSourceManager {
     let body = options.body
     const headers: Record<string, string> = { ...(options.headers || {}) }
     if (options.form && typeof options.form === 'object') {
-      body = new URLSearchParams(Object.keys(options.form).map(key => [key, String(options.form[key] == null ? '' : options.form[key])])).toString()
+      body = new URLSearchParams(Object.keys(options.form).map(key => [key, String(options.form[key] == null ? '' : options.form[key])] as [string, string])).toString()
       if (!headers['Content-Type'] && !headers['content-type']) headers['Content-Type'] = 'application/x-www-form-urlencoded'
     }
     if (body && typeof body === 'object' && !Buffer.isBuffer(body)) body = JSON.stringify(body)
@@ -129,6 +155,18 @@ export class LxSourceManager {
           const ct = response.headers?.['content-type'] || ''
           let parsedBody: any = text
           if (/json/i.test(ct) || /^[\s\r\n]*[\[{]/.test(text)) { try { parsedBody = JSON.parse(text) } catch {} }
+          // 识别音源侧业务错误码，给出友好提示（而非乱码/误报）
+          const code = parsedBody && typeof parsedBody === 'object' ? parsedBody.code : undefined
+          const msg = parsedBody && typeof parsedBody === 'object' ? String(parsedBody.msg || '') : ''
+          if (code != null && code !== 0) {
+            if (code === 6) {
+              this.lastSourceError = { reason: '音源脚本版本过低(v4)', hint: '请下载最新版本(v6)音源脚本，在设置中更新' }
+            } else {
+              const short = msg.length > 40 ? msg.slice(0, 40) + '…' : msg
+              this.lastSourceError = { reason: short || `音源服务返回错误(code=${code})`, hint: '稍后再试或更换音源' }
+            }
+            console.warn('[LX] 音源返回业务错误 code=' + code + ':', msg, '→', JSON.stringify(this.lastSourceError))
+          }
           callback(null, { statusCode: response.statusCode || 0, status: response.statusCode || 0, headers: response.headers || {}, body: parsedBody, rawBody: buffer }, parsedBody)
         })
       })
@@ -176,13 +214,13 @@ export class LxSourceManager {
     const apiKeyPatterns = [/X-Request-Key\s*[:=]\s*['"]\s*['"]/, /apiKey\s*[:=]\s*['"]\s*['"]/, /token\s*[:=]\s*['"]\s*['"]/, /key\s*[:=]\s*['"]\s*['"]/i]
     for (const pattern of apiKeyPatterns) {
       if (pattern.test(scriptText)) {
-        throw new Error('俺不中了，这个音源需要 API Key 才能使用')
+        throw new Error('该音源需要 API Key 才能使用')
       }
     }
 
     // 检测是否是加密/混淆脚本（无法读取）
     if (scriptText.length < 100 && !scriptText.includes('lx') && !scriptText.includes('source')) {
-      throw new Error('俺不中了，无法识别此音源文件')
+      throw new Error('无法识别此音源文件')
     }
 
     const metadata = { ...this.parseScriptInfo(scriptText), rawScript: scriptText } as any
@@ -261,7 +299,7 @@ export class LxSourceManager {
       }
       if (active) {
         console.log('[LX] 自动加载音源:', active.metadata?.name, '文件:', active.filePath)
-        try { await this.withTimeout(this.loadScript(active.filePath), 12000, '俺不中了，音源加载超时') } catch (e: any) { console.warn('[LX] 自动加载失败:', e.message) }
+        try { await this.withTimeout(this.loadScript(active.filePath), 12000, '音源加载超时') } catch (e: any) { console.warn('[LX] 自动加载失败:', e.message) }
       }
     }
     return {
@@ -328,7 +366,7 @@ export class LxSourceManager {
     // 总是尝试加载（无论是否是活动音源）
     this.reset()
     try {
-      await this.withTimeout(this.loadScript(destPath), 12000, '俺不中了，音源加载超时')
+      await this.withTimeout(this.loadScript(destPath), 12000, '音源加载超时')
       console.log('[LX] 脚本加载成功:', metadata.name)
     } catch (e: any) {
       console.warn('[LX] 脚本加载失败:', e.message)
@@ -361,9 +399,9 @@ export class LxSourceManager {
       })
     } catch (e: any) {
       if (e.code === 'ECONNABORTED' || e.message?.includes('timeout')) {
-        throw new Error('俺不中了，导入超时，请检查网络连接')
+        throw new Error('导入超时，请检查网络连接')
       }
-      throw new Error('俺不中了，导入失败: ' + (e.message || '未知错误'))
+      throw new Error('导入失败：' + (e.message || '未知错误'))
     }
     const scriptText = typeof resp.data === 'string' ? resp.data : String(resp.data || '')
     console.log('[LX] URL导入内容长度:', scriptText.length, '前100字符:', scriptText.substring(0, 100))
@@ -388,7 +426,7 @@ export class LxSourceManager {
     // 总是尝试加载
     this.reset()
     try {
-      await this.withTimeout(this.loadScript(destPath), 12000, '俺不中了，音源加载超时')
+      await this.withTimeout(this.loadScript(destPath), 12000, '音源加载超时')
       console.log('[LX] 脚本加载成功:', metadata.name)
     } catch (e: any) {
       console.warn('[LX] 脚本加载失败:', e.message)
@@ -408,7 +446,7 @@ export class LxSourceManager {
       config.activeId = config.sources[0]?.id || ''
       this.reset()
       if (config.activeId) {
-        try { await this.withTimeout(this.loadScript(config.sources[0].filePath), 15000, '俺不中了，音源加载超时') } catch (e: any) { this.error = e.message }
+        try { await this.withTimeout(this.loadScript(config.sources[0].filePath), 15000, '音源加载超时') } catch (e: any) { this.error = e.message }
       }
     }
     this.writeConfig(config)
@@ -458,14 +496,15 @@ export class LxSourceManager {
     return { sourceKey, result }
   }
 
-  async getMusicUrl(musicInfo: any, quality = '320k'): Promise<string> {
+  async getMusicUrl(musicInfo: any, quality = '320k'): Promise<{ url: string; error: SourceErrorInfo | null }> {
     await this.ensureLoaded()
     const actionSource = this.firstSourceForAction('musicUrl')
     if (!actionSource) {
       console.warn('[LX] getMusicUrl: 没有找到支持 musicUrl 的源')
-      return ''
+      return { url: '', error: { reason: '音源不支持获取播放链接', hint: '请更换音源脚本' } }
     }
     console.log('[LX] getMusicUrl: 使用源', actionSource, '获取音乐URL，质量:', quality)
+    this.lastSourceError = null
     const seen = new Set<string>()
     for (const q of [quality, 'lossless', '320k', '128k']) {
       if (seen.has(q)) continue; seen.add(q)
@@ -477,14 +516,19 @@ export class LxSourceManager {
         console.log('[LX] getMusicUrl: 提取的URL:', url)
         if (url && typeof url === 'string' && url.startsWith('http')) {
           console.log('[LX] getMusicUrl: 成功获取URL:', url.substring(0, 100) + '...')
-          return url
+          this.lastSourceError = null
+          return { url, error: null }
         }
       } catch (e: any) {
         console.warn('[LX] getMusicUrl: 质量', q, '失败:', e.message)
+        // 优先保留 HTTP 业务错误（如版本过低），其次识别网络类错误
+        if (!this.lastSourceError) this.lastSourceError = classifyError(e.message)
       }
     }
-    console.warn('[LX] getMusicUrl: 所有质量尝试均失败')
-    return ''
+    // 所有质量都失败，返回结构化错误供 UI 提示
+    const error = this.lastSourceError || { reason: '未获取到播放链接', hint: '歌曲可能无版权或已下架' }
+    console.warn('[LX] getMusicUrl: 所有质量尝试均失败 -', JSON.stringify(error))
+    return { url: '', error }
   }
 
   async getLyric(musicInfo: any): Promise<{ lyric: string; tlyric: string }> {

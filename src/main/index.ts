@@ -1,6 +1,15 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join, dirname } from 'path'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+
+// 修复 Windows 下控制台日志中文乱码：强制 stdout/stderr 使用 UTF-8
+if (process.platform === 'win32') {
+  try {
+    const { stdout, stderr } = process
+    ;(stdout as any).setDefaultEncoding?.('utf8')
+    ;(stderr as any).setDefaultEncoding?.('utf8')
+  } catch {}
+}
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { LxSourceManager } from './lx-source'
 import { PlayerManager } from './player-manager'
@@ -519,19 +528,21 @@ app.whenReady().then(() => {
     }
   })
 
-  // 获取播放链接（LX 音源）
+  // 获取播放链接（LX 音源）— 结构化返回错误原因，供 UI 精确提示
   ipcMain.handle('source:getUrl', async (_, musicInfo: any, quality: string) => {
     try {
       console.log('[IPC] getUrl:', musicInfo.songmid, musicInfo.name)
       if (!lxSourceManager.isLoaded()) {
-        throw new Error('音源未加载，请先导入音源')
+        return { success: false, error: '音源未加载', hint: '请先在设置中导入音源' }
       }
-      const url = await lxSourceManager.getMusicUrl(musicInfo, quality)
-      if (!url) throw new Error('俺不中了，未获取到播放链接')
-      return url
+      const { url, error } = await lxSourceManager.getMusicUrl(musicInfo, quality)
+      if (!url) {
+        return { success: false, error: error?.reason || '未获取到播放链接', hint: error?.hint }
+      }
+      return { success: true, data: url }
     } catch (error: any) {
       console.error('[IPC] getUrl 失败:', error.message)
-      return ''
+      return { success: false, error: error.message || '获取播放链接失败' }
     }
   })
 

@@ -15,6 +15,8 @@ export interface LxSourceStatus {
   loadedSources: Record<string, { name: string; actions: string[]; qualitys: string[] }>
 }
 
+export interface GetUrlResult { url: string; error?: string; hint?: string }
+
 export function useSource() {
   const searchResults = ref<MusicInfo[]>([])
   const searching = ref(false)
@@ -30,9 +32,15 @@ export function useSource() {
     finally { searching.value = false }
   }
 
-  const getMusicUrl = async (musicInfo: MusicInfo, quality = '320k'): Promise<string> => {
+  const getMusicUrl = async (musicInfo: MusicInfo, quality = '320k'): Promise<GetUrlResult> => {
     const safe = { songmid: String(musicInfo.songmid || ''), name: String(musicInfo.name || ''), singer: String(musicInfo.singer || ''), album: String(musicInfo.album || ''), duration: Number(musicInfo.duration) || 0, source: String(musicInfo.source || '') }
-    return await window.api.sourceGetUrl(safe, quality) || ''
+    try {
+      const r = await window.api.sourceGetUrl(safe, quality)
+      if (r && r.success && r.data) return { url: r.data }
+      return { url: '', error: r?.error, hint: r?.hint }
+    } catch {
+      return { url: '' }
+    }
   }
 
   const getLyric = async (musicInfo: MusicInfo) => {

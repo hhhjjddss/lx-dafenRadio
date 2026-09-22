@@ -418,7 +418,7 @@ function snoise3D(x: number, y: number, z: number): number {
 }
 
 let lastFrameTime = 0
-const FRAME_INTERVAL = 1000 / 60
+const FRAME_INTERVAL = 1000 / 30
 
 function animate(canvas: HTMLCanvasElement, timestamp: number) {
   rafId = requestAnimationFrame((t) => animate(canvas, t))
