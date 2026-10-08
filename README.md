@@ -10,24 +10,26 @@
 ## ✨ 功能特性
 
 ###   液态玻璃界面
-采用毛玻璃设计语言，光影流动，视觉沉浸。
+采用液态玻璃设计语言，光影流动，视觉沉浸。
 
-![](https://p.sda1.dev/33/604378be2c04510c214f0a08a3875cd4/image.png)
+![](https://p.sda1.dev/35/ece48dcee21d7ba857d69e13bfbb8493/image.png)
 
 ###   黑胶唱片 / 粒子封面
 - 模拟真实黑胶唱片机效果，含唱针动画
 - 专辑封面以粒子形态呈现，支持 3D 拖拽旋转
 - 多档画质切换，适配不同机型功耗
 
-![](https://p.sda1.dev/33/d93ef4f22440a5c78182224fab1cb121/image.png)
+![](https://p.sda1.dev/35/fa36fd03c2b0d9b0db6898a3e553f994/image.png)
 
 ###   歌词滚动
 支持双语歌词 + 自动滚动，活跃行 3D 弹出效果。
 
+![](https://p.sda1.dev/35/dd90092152407bb1ba30dd7b6f36cbba/image.png)
+
 ###   全屏模式
 沉浸式全屏播放体验，尽享音乐。
 
-![](https://p.sda1.dev/33/1523a1c5599232b955874d6f153aa6a5/image.png)
+![](https://p.sda1.dev/35/876885486171faf495213ca0a7f65fe3/image.png)
 
 ###   其他功能
 - ✅ 收藏管理（本地持久化）
