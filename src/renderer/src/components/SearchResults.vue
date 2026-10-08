@@ -281,7 +281,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   padding: 0 16px 12px;
-  border-bottom: 1.5px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1.5px solid rgba(18,84,130,0.06);
   margin-bottom: 6px;
 }
 
@@ -312,7 +312,7 @@ onBeforeUnmount(() => {
 }
 
 .list-row:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(18,84,130,0.05);
 }
 
 .list-row.active {
@@ -390,7 +390,7 @@ onBeforeUnmount(() => {
 }
 
 .col-album {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text-ghost);
   white-space: nowrap;
   overflow: hidden;
@@ -413,7 +413,7 @@ onBeforeUnmount(() => {
   border-radius: 50%;
   color: var(--text-muted);
   opacity: 0.45;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(18,84,130,0.05);
   border: 1px solid transparent;
   transition: all var(--t-fast);
 }
@@ -421,11 +421,11 @@ onBeforeUnmount(() => {
 .list-row:hover .row-play-btn {
   opacity: 1;
   color: var(--amber);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(18,84,130,0.1);
 }
 
 .row-play-btn:hover {
-  color: #0d0b14;
+  color: #ffffff;
   background: var(--amber);
   transform: scale(1.1);
   box-shadow: 0 0 12px var(--amber-highlight);

@@ -2,8 +2,8 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
 
-// 读取 SVG 文件
-const svgIcon = fs.readFileSync(path.join(__dirname, '../resources/icon.svg'), 'utf8');
+// 图标源图（PNG，来自 MyDiary 的 dF 字形）
+const sourceIcon = path.join(__dirname, '../resources/icon-source.png');
 
 async function generateIcons() {
   const resourcesDir = path.join(__dirname, '../resources');
@@ -17,7 +17,7 @@ async function generateIcons() {
   const sizes = [16, 32, 48, 64, 128, 256, 512];
 
   for (const size of sizes) {
-    await sharp(Buffer.from(svgIcon))
+    await sharp(sourceIcon)
       .resize(size, size)
       .png()
       .toFile(path.join(resourcesDir, `icon-${size}.png`));
@@ -25,7 +25,7 @@ async function generateIcons() {
   }
 
   // 生成主图标 (256x256)
-  await sharp(Buffer.from(svgIcon))
+  await sharp(sourceIcon)
     .resize(256, 256)
     .png()
     .toFile(path.join(resourcesDir, 'icon.png'));
@@ -36,7 +36,7 @@ async function generateIcons() {
   const icoBuffers = [];
 
   for (const size of icoSizes) {
-    const buffer = await sharp(Buffer.from(svgIcon))
+    const buffer = await sharp(sourceIcon)
       .resize(size, size)
       .png()
       .toBuffer();

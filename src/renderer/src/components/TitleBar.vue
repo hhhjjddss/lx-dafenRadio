@@ -1,13 +1,7 @@
 <template>
   <div ref="barRef" class="titlebar" style="-webkit-app-region: drag">
     <div class="titlebar-left">
-      <div ref="logoRef" class="logo-mark">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
-          <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1"/>
-          <circle cx="12" cy="12" r="1" fill="currentColor"/>
-        </svg>
-      </div>
+      <div ref="logoRef" class="logo-mark" :style="markStyle"></div>
       <span class="app-name">DaFen</span>
       <span class="app-name-accent">Radio</span>
     </div>
@@ -105,9 +99,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import gsap from 'gsap'
 import type { LxSourceStatus } from '../composables/useSource'
+import logoMark from '../assets/logo-mark.png'
+
+/** 标题栏品牌符号：与开屏/应用图标同源，用 mask 上色以适配主题 */
+const markStyle = computed(() => ({
+  WebkitMaskImage: `url(${logoMark})`,
+  maskImage: `url(${logoMark})`
+}))
 
 let ctx: gsap.Context | null = null
 
@@ -197,10 +198,10 @@ const closeWindow = () => window.api.windowClose()
   justify-content: space-between;
   height: 40px;
   padding: 0 10px 0 14px;
-  background: rgba(30, 25, 35, 0.4);
-  backdrop-filter: blur(10px) saturate(1.5);
-  -webkit-backdrop-filter: blur(10px) saturate(1.5);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  border-bottom: 1px solid rgba(255,255,255,0.7);
   user-select: none;
   flex-shrink: 0;
   position: relative;
@@ -212,7 +213,7 @@ const closeWindow = () => window.api.windowClose()
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.06) 75%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(18,84,130,0.06) 25%, rgba(18,84,130,0.08) 50%, rgba(18,84,130,0.06) 75%, transparent 100%);
   pointer-events: none;
 }
 
@@ -224,32 +225,33 @@ const closeWindow = () => window.api.windowClose()
 }
 
 .logo-mark {
-  color: var(--amber);
-  display: flex;
-  align-items: center;
+  width: 18px;
+  height: 18px;
+  background-color: var(--amber);
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
   filter: drop-shadow(0 0 8px rgba(212, 168, 83, 0.4));
 }
 
 .app-name {
-  font-family: var(--font-display);
-  font-size: 18px;
+  font-family: var(--font-mono);
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-cream);
   letter-spacing: 0.5px;
-  text-shadow: 0 0 20px rgba(245, 237, 224, 0.3);
 }
 
 .app-name-accent {
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 300;
-  font-style: italic;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
   color: var(--text-muted);
   letter-spacing: 1px;
 }
-
-.theme-classic .app-name { text-shadow: none !important; }
-.theme-classic .app-name-accent { color: #888 !important; }
 
 .titlebar-center {
   display: flex;
@@ -271,25 +273,25 @@ const closeWindow = () => window.api.windowClose()
   overflow: hidden;
 }
 .lx-badge.loaded {
-  color: #66d9a0;
-  background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #0d9464;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 .lx-badge.error {
-  color: #e88;
-  background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #d64545;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(220, 74, 74, 0.3);
 }
 .lx-badge:not(.loaded):not(.error) {
   color: var(--text-muted);
-  background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(18, 84, 130, 0.12);
 }
 
 .lx-badge:hover {
-  background: rgba(200, 90, 90, 0.1);
-  border-color: rgba(200, 90, 90, 0.2);
-  color: #e88;
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--amber-border);
+  color: var(--amber);
 }
 .immersive-wrap {
   position: relative;
@@ -300,14 +302,14 @@ const closeWindow = () => window.api.windowClose()
   display: flex; align-items: center; gap: 5px;
   font-size: 10px; padding: 5px 12px;
   border-radius: 999px;
-  color: var(--amber-dim); background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--amber-dim); background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--amber-border);
   cursor: pointer; transition: all var(--t-fast);
 }
 .immersive-btn:hover {
-  background: rgba(0, 0, 0, 0.1);
-  border-color: rgba(0, 0, 0, 0.15);
-  box-shadow: 0 0 12px rgba(212, 168, 83, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--amber);
+  box-shadow: 0 0 12px var(--amber-glow-md);
 }
 
 .immersive-tooltip {
@@ -347,16 +349,16 @@ const closeWindow = () => window.api.windowClose()
   display: flex; align-items: center; gap: 5px;
   font-size: 10px; padding: 5px 12px;
   border-radius: 999px;
-  color: var(--text-muted); background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--text-muted); background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(18, 84, 130, 0.12);
   cursor: pointer; transition: all var(--t-fast);
   -webkit-app-region: no-drag;
 }
 .playlist-btn:hover {
   color: var(--amber);
-  background: rgba(0, 0, 0, 0.1);
-  border-color: rgba(0, 0, 0, 0.15);
-  box-shadow: 0 0 12px rgba(212, 168, 83, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--amber-border);
+  box-shadow: 0 0 12px var(--amber-glow-sm);
 }
 
 .lx-import-wrap {
@@ -372,8 +374,8 @@ const closeWindow = () => window.api.windowClose()
   padding: 5px 14px;
   border-radius: 999px;
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(18,84,130,0.05);
+  border: 1px solid rgba(18,84,130,0.08);
   cursor: pointer;
   transition: all var(--t-fast);
   letter-spacing: 0.3px;
@@ -391,10 +393,8 @@ const closeWindow = () => window.api.windowClose()
   left: 50%;
   transform: translateX(-50%);
   width: 280px;
-  background: rgba(30, 25, 35, 0.5);
-  backdrop-filter: blur(10px) saturate(1.5);
-  -webkit-backdrop-filter: blur(10px) saturate(1.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid rgba(18,84,130,0.1);
   border-radius: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
   padding: 10px;
@@ -407,7 +407,7 @@ const closeWindow = () => window.api.windowClose()
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(160deg, rgba(255,255,255,0.06) 0%, transparent 25%, transparent 75%, rgba(255,255,255,0.03) 100%);
+  background: linear-gradient(160deg, rgba(18,84,130,0.06) 0%, transparent 25%, transparent 75%, rgba(255,255,255,0.03) 100%);
   pointer-events: none;
 }
 
@@ -424,13 +424,13 @@ const closeWindow = () => window.api.windowClose()
   transition: all var(--t-fast);
   text-align: left;
 }
-.panel-option:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-cream); }
+.panel-option:hover { background: rgba(18,84,130,0.05); color: var(--text-cream); }
 
 .option-text { display: flex; flex-direction: column; gap: 1px; }
 .option-title { font-size: 12px; font-weight: 500; color: var(--text-cream); }
 .option-desc { font-size: 10px; color: var(--text-ghost); }
 
-.panel-divider { height: 1px; background: rgba(255, 255, 255, 0.04); margin: 6px 4px; }
+.panel-divider { height: 1px; background: rgba(18,84,130,0.04); margin: 6px 4px; }
 
 .url-label { font-size: 10px; color: var(--text-ghost); letter-spacing: 0.5px; padding: 2px 2px 6px; }
 
@@ -438,18 +438,18 @@ const closeWindow = () => window.api.windowClose()
 
 .url-input {
   flex: 1; height: 34px; padding: 0 12px; font-size: 11px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(18,84,130,0.05);
+  border: 1px solid rgba(18,84,130,0.08);
   border-radius: 12px; color: var(--text-cream);
   transition: all var(--t-fast);
 }
-.url-input:focus { border-color: rgba(212, 168, 83, 0.3); background: rgba(255, 255, 255, 0.08); }
+.url-input:focus { border-color: rgba(212, 168, 83, 0.3); background: rgba(18,84,130,0.08); }
 .url-input::placeholder { color: var(--text-ghost); font-style: italic; }
 
 .url-go-btn {
   height: 38px; padding: 0 18px; border-radius: 12px;
   background: linear-gradient(135deg, var(--amber), var(--amber-bright));
-  color: #0d0b14; font-size: 10px; font-weight: 600;
+  color: #ffffff; font-size: 10px; font-weight: 600;
   letter-spacing: 0.5px; transition: all var(--t-fast);
   display: flex; align-items: center; justify-content: center; min-width: 52px;
   box-shadow: 0 4px 30px var(--amber-glow-md);
@@ -488,7 +488,7 @@ const closeWindow = () => window.api.windowClose()
   color: var(--text-muted);
   transition: all var(--t-fast);
 }
-.win-btn:hover { color: var(--text-warm); background: rgba(255, 255, 255, 0.06); }
+.win-btn:hover { color: var(--text-warm); background: rgba(18,84,130,0.06); }
 .win-close:hover { color: var(--text-cream); background: rgba(200, 90, 90, 0.6); }
 
 </style>

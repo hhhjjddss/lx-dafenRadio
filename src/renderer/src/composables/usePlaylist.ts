@@ -94,7 +94,7 @@ export function usePlaylist() {
     currentIndex = prevIndex
     return playQueue[currentIndex]
   }
-
+//npm.cmd run dev
   return {
     setPlayQueue,
     getCurrentInfo,

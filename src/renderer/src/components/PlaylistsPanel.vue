@@ -373,9 +373,7 @@ onBeforeUnmount(() => {
   z-index: 50;
   display: flex;
   flex-direction: column;
-  background: var(--bg-elevated);
-  backdrop-filter: blur(12px) saturate(1.5);
-  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  background: #ffffff;
   transform-origin: var(--origin-x, 50%) var(--origin-y, 0%);
   animation: playlistsExpand 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -446,7 +444,7 @@ onBeforeUnmount(() => {
 
 .dropdown-item:hover {
   color: var(--text-cream);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(18,84,130,0.06);
 }
 
 .dropdown-item.active {
@@ -535,7 +533,7 @@ onBeforeUnmount(() => {
 .loading-spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(18,84,130,0.1);
   border-top-color: var(--amber);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -581,7 +579,7 @@ onBeforeUnmount(() => {
   border-radius: 10px;
   overflow: hidden;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(18,84,130,0.05);
 }
 
 .card-cover img {
@@ -653,7 +651,6 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
 }
 
 .detail-panel {
@@ -679,7 +676,7 @@ onBeforeUnmount(() => {
   display: flex;
   gap: 16px;
   padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(18,84,130,0.06);
   position: relative;
 }
 
@@ -729,7 +726,7 @@ onBeforeUnmount(() => {
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
-  color: #0d0b14;
+  color: #ffffff;
   background: linear-gradient(135deg, var(--amber), var(--amber-bright));
   box-shadow: 0 4px 20px var(--amber-glow-md);
   transition: all var(--t-fast);
@@ -757,8 +754,10 @@ onBeforeUnmount(() => {
 }
 
 .detail-close:hover {
-  color: var(--text-cream);
-  background: var(--glass-bg-hover);
+  color: var(--amber);
+  background: rgba(255,255,255,0.95);
+  border-color: var(--amber-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 3px 12px rgba(14,165,233,0.18);
 }
 
 .detail-songs {
@@ -826,119 +825,4 @@ onBeforeUnmount(() => {
 .detail-fade-leave-active { transition: opacity 0.15s ease; }
 .detail-fade-enter-from, .detail-fade-leave-to { opacity: 0; }
 
-/* 经典主题 */
-.theme-classic :deep(.playlists-panel) {
-  background: #f0f0f0 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-.theme-classic :deep(.toolbar) {
-  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
-}
-.theme-classic :deep(.dropdown-btn) {
-  background: rgba(0, 0, 0, 0.05) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  color: #333 !important;
-}
-.theme-classic :deep(.dropdown-menu) {
-  background: #fff !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1) !important;
-}
-.theme-classic :deep(.dropdown-item) {
-  color: #666 !important;
-}
-.theme-classic :deep(.dropdown-item:hover) {
-  background: rgba(0, 0, 0, 0.04) !important;
-  color: #1a1a1a !important;
-}
-.theme-classic :deep(.dropdown-item.active) {
-  color: var(--amber) !important;
-  background: rgba(184, 148, 46, 0.08) !important;
-}
-.theme-classic :deep(.dropdown-group) {
-  color: #999 !important;
-}
-.theme-classic :deep(.sort-tab) {
-  background: rgba(0, 0, 0, 0.05) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  color: #666 !important;
-}
-.theme-classic :deep(.sort-tab:hover) {
-  background: rgba(0, 0, 0, 0.08) !important;
-}
-.theme-classic :deep(.sort-tab.active) {
-  color: var(--amber) !important;
-  border-color: var(--amber) !important;
-  background: rgba(184, 148, 46, 0.08) !important;
-}
-.theme-classic :deep(.playlist-card) {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
-}
-.theme-classic :deep(.playlist-card:hover) {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-.theme-classic :deep(.card-title) {
-  color: #1a1a1a !important;
-}
-.theme-classic :deep(.card-creator) {
-  color: #999 !important;
-}
-.theme-classic :deep(.stat-item) {
-  color: #999 !important;
-}
-.theme-classic :deep(.empty-state) {
-  color: #999 !important;
-}
-.theme-classic :deep(.detail-overlay) {
-  background: rgba(0, 0, 0, 0.3) !important;
-  backdrop-filter: none !important;
-}
-.theme-classic :deep(.detail-panel) {
-  background: #fff !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15) !important;
-}
-.theme-classic :deep(.detail-meta h3) {
-  color: #1a1a1a !important;
-}
-.theme-classic :deep(.detail-creator) {
-  color: #666 !important;
-}
-.theme-classic :deep(.detail-desc) {
-  color: #999 !important;
-}
-.theme-classic :deep(.detail-close) {
-  background: rgba(0, 0, 0, 0.05) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  color: #888 !important;
-}
-.theme-classic :deep(.detail-close:hover) {
-  background: rgba(0, 0, 0, 0.08) !important;
-  color: #333 !important;
-}
-.theme-classic :deep(.detail-play-btn) {
-  color: #fff !important;
-}
-.theme-classic :deep(.song-name) {
-  color: #1a1a1a !important;
-}
-.theme-classic :deep(.song-artist) {
-  color: #999 !important;
-}
-.theme-classic :deep(.song-idx) {
-  color: #bbb !important;
-}
-.theme-classic :deep(.song-duration) {
-  color: #999 !important;
-}
-.theme-classic :deep(.detail-song-item) {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
-}
-.theme-classic :deep(.detail-song-item:hover) {
-  background: rgba(0, 0, 0, 0.03) !important;
-}
 </style>

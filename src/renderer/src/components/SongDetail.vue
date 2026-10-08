@@ -804,8 +804,11 @@ onBeforeUnmount(() => {
   color: var(--text-muted);
   padding: 8px 16px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255,255,255,0.65);
+  border: 1px solid rgba(18,84,130,0.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(18,84,130,0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   transition: all var(--t-fast);
   position: relative;
   overflow: hidden;
@@ -815,13 +818,13 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: var(--glass-refraction);
   pointer-events: none;
 }
 .detail-back:hover {
-  color: var(--text-cream);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--amber);
+  background: rgba(255,255,255,0.95);
+  border-color: var(--amber-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 3px 12px rgba(14,165,233,0.18);
 }
 
 /* 全屏按钮 */
@@ -833,8 +836,8 @@ onBeforeUnmount(() => {
   height: 32px;
   border-radius: 50%;
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(18,84,130,0.05);
+  border: 1px solid rgba(18,84,130,0.1);
   transition: all var(--t-fast);
   margin-left: 8px;
 }
@@ -850,8 +853,8 @@ onBeforeUnmount(() => {
   gap: 3px;
   padding: 3px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(18,84,130,0.05);
+  border: 1px solid rgba(18,84,130,0.08);
   z-index: 10;
   margin-top: -80px;
 }
@@ -866,7 +869,7 @@ onBeforeUnmount(() => {
 
 .q-btn:hover {
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(18,84,130,0.05);
 }
 
 .q-btn.active {
@@ -942,8 +945,8 @@ onBeforeUnmount(() => {
   border-radius: 999px;
   font-size: 12px;
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(18,84,130,0.05);
+  border: 1px solid rgba(18,84,130,0.1);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   transition: all var(--t-fast);
   position: relative;
@@ -954,18 +957,17 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: var(--glass-refraction);
   pointer-events: none;
 }
 .action-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(18,84,130,0.08);
+  border-color: rgba(18,84,130,0.12);
   color: var(--text-cream);
 }
 
 .action-btn.primary {
   background: linear-gradient(135deg, var(--amber), var(--amber-bright));
-  color: #0d0b14;
+  color: #ffffff;
   border: none;
   font-weight: 600;
   box-shadow: 0 4px 30px var(--amber-glow-md);
@@ -1022,7 +1024,7 @@ onBeforeUnmount(() => {
 }
 
 .lyric-line:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(18,84,130,0.04);
 }
 
 .lyric-text {

@@ -196,14 +196,14 @@ function parseLrc(lrc: string): { time: number; text: string }[] {
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
 }
 
-/* 整面玻璃折射 */
+/* 整面玻璃折射（已由面板自身玻璃底取代） */
 .panel-refraction {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(160deg, rgba(255,255,255,0.03) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.015) 100%);
-  pointer-events: none;
+  display: none;
 }
 
 .panel-header {
@@ -211,7 +211,7 @@ function parseLrc(lrc: string): { time: number; text: string }[] {
   align-items: center;
   justify-content: space-between;
   padding: 16px 22px;
-  border-bottom: 1.5px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1.5px solid rgba(18,84,130,0.06);
   flex-shrink: 0;
   position: relative;
   z-index: 1;
@@ -234,14 +234,17 @@ function parseLrc(lrc: string): { time: number; text: string }[] {
   height: 28px;
   border-radius: 50%;
   color: var(--text-ghost);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.65);
+  border: 1px solid rgba(18,84,130,0.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(18,84,130,0.08);
   transition: all var(--t-fast);
 }
 
 .close-btn:hover {
-  color: var(--text-cream);
-  background: rgba(255, 255, 255, 0.08);
+  color: var(--amber);
+  background: rgba(255,255,255,0.95);
+  border-color: var(--amber-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 3px 12px rgba(14,165,233,0.18);
 }
 
 .lyrics-scroll {

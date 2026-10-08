@@ -513,6 +513,7 @@ onBeforeUnmount(() => { if (rafId) cancelAnimationFrame(rafId); rafId = 0; clean
   display: flex; align-items: center; justify-content: center;
   color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   transition: all 0.2s ease; cursor: pointer;
 }
 .imm-icon-btn:hover { color: #fff; background: rgba(255,255,255,0.15); }

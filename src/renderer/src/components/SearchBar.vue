@@ -2,7 +2,6 @@
   <div ref="sectionRef" class="search-section">
     <div ref="wrapRef" class="search-wrap" :class="{ focused: isFocused }">
       <!-- 玻璃折射层 -->
-      <div class="glass-shine"></div>
       <!-- 光标跟踪光晕 -->
       <div class="cursor-glow" ref="glowRef"></div>
 
@@ -163,8 +162,8 @@ const clearInput = () => {
 .search-wrap {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(18,84,130,0.05);
+  border: 1px solid rgba(18,84,130,0.1);
   border-radius: 16px;
   padding: 0 6px 0 16px;
   transition: border-color var(--t-normal), box-shadow var(--t-normal), background var(--t-normal);
@@ -176,16 +175,7 @@ const clearInput = () => {
 .search-wrap.focused {
   border-color: rgba(212, 168, 83, 0.3);
   box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.1), 0 4px 30px rgba(0, 0, 0, 0.15);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* 玻璃折射高光 */
-.glass-shine {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 35%, transparent 65%, rgba(255,255,255,0.04) 100%);
-  pointer-events: none;
+  background: rgba(18,84,130,0.08);
 }
 
 /* 鼠标跟踪光晕 */
@@ -252,7 +242,7 @@ const clearInput = () => {
 
 .clear-btn:hover {
   color: var(--text-cream);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(18,84,130,0.1);
 }
 
 .search-trigger {
@@ -260,7 +250,7 @@ const clearInput = () => {
   padding: 0 28px;
   border-radius: 999px;
   background: linear-gradient(135deg, var(--amber), var(--amber-bright));
-  color: #0d0b14;
+  color: #ffffff;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 1.5px;
