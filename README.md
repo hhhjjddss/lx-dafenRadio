@@ -79,7 +79,7 @@ npm run build:win
 
 **推荐音源**：
 ```
-https://raw.githubusercontent.com/pdone/lx-music-source/main/lx/latest.js
+https://fastly.jsdelivr.net/gh/Huibq/keep-alive/render_api.js
 ```
 
 ---
