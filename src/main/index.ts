@@ -20,14 +20,25 @@ app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required')
 // 绕过系统代理，直接连接网络（解决代理导致 CDN 链接播放失败的问题）
 app.commandLine.appendSwitch('no-proxy-server')
 
-// 数据存储目录
-// 开发时: 项目根目录/data (process.cwd())
-// 打包后: 安装目录/data (exe 同级目录)
-const APP_DIR = is.dev ? process.cwd() : dirname(app.getPath('exe'))
-const DATA_DIR = join(APP_DIR, 'data')
+// 数据存储目录：统一使用 Electron userData 目录
+// （安装目录/进程工作目录在打包后可能无写权限，如 Program Files）
+const DATA_DIR = join(app.getPath('userData'), 'data')
 const FAVORITES_FILE = join(DATA_DIR, 'favorites.json')
 
-console.log('[Data] APP_DIR:', APP_DIR)
+// 迁移旧版数据（开发期项目根/data、打包期安装目录/data）→ userData/data
+try {
+  const legacyAppDir = is.dev ? process.cwd() : dirname(app.getPath('exe'))
+  const legacyFavorites = join(legacyAppDir, 'data', 'favorites.json')
+  if (existsSync(legacyFavorites) && !existsSync(FAVORITES_FILE)) {
+    mkdirSync(DATA_DIR, { recursive: true })
+    writeFileSync(FAVORITES_FILE, readFileSync(legacyFavorites))
+    console.log('[Data] 已迁移旧收藏数据:', legacyFavorites, '→', FAVORITES_FILE)
+  }
+} catch (e) {
+  console.warn('[Data] 旧数据迁移失败（不影响使用）:', e)
+}
+
+console.log('[Data] DATA_DIR:', DATA_DIR)
 console.log('[Data] FAVORITES_FILE:', FAVORITES_FILE)
 
 let mainWindow: BrowserWindow | null = null
@@ -415,12 +426,23 @@ function createWindow(): void {
       sandbox: false,
       contextIsolation: true,
       nodeIntegration: false,
+      // 必须保留：跨域音频（第三方 CDN，无 CORS 头）经 Web Audio AnalyserNode
+      // 分析时会被浏览器置零，关闭 webSecurity 才能让心电图/沉浸粒子拿到真实频谱。
+      // 渲染层无直连网络请求（全部走主进程 IPC），配合 contextIsolation 风险可控。
       webSecurity: false
     }
   })
 
   mainWindow.on('ready-to-show', () => {
     mainWindow?.show()
+  })
+
+  // 全屏状态变化 → 同步给渲染进程（必须在窗口创建后绑定，否则 mainWindow 为 null 监听不生效）
+  mainWindow.on('enter-full-screen', () => {
+    mainWindow?.webContents.send('window:fullscreen-change', true)
+  })
+  mainWindow.on('leave-full-screen', () => {
+    mainWindow?.webContents.send('window:fullscreen-change', false)
   })
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
@@ -452,7 +474,13 @@ async function searchFromKuwo(keyword: string, page = 1, limit = 30) {
 
   let data: any
   if (typeof resp.data === 'string') {
-    data = JSON.parse(resp.data.replace(/'/g, '"'))
+    try {
+      data = JSON.parse(resp.data)
+    } catch {
+      // 兼容接口返回单引号 JSON 的历史行为；仅解析失败时降级，
+      // 避免歌名含撇号（如 "Don't Stop"）被误替换导致解析错乱
+      data = JSON.parse(resp.data.replace(/'/g, '"'))
+    }
   } else {
     data = resp.data
   }
@@ -508,14 +536,6 @@ app.whenReady().then(() => {
   // Kiosk 模式 — 独占屏幕，隐藏任务栏
   ipcMain.handle('window:setKiosk', (_, enable: boolean) => {
     mainWindow?.setKiosk(enable)
-  })
-
-  // 监听全屏状态变化
-  mainWindow?.on('enter-full-screen', () => {
-    mainWindow?.webContents.send('window:fullscreen-change', true)
-  })
-  mainWindow?.on('leave-full-screen', () => {
-    mainWindow?.webContents.send('window:fullscreen-change', false)
   })
 
   // 搜索

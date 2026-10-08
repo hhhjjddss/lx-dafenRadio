@@ -106,7 +106,6 @@
             class="vinyl-disc"
             :class="{
               'disc-playing-spin': playerState.isPlaying,
-              'disc-expanded-spin': !playerState.isPlaying && sidebarExpanded,
             }"
           >
             <div class="disc-outer">
@@ -593,8 +592,7 @@ const {
   setPlayQueue,
   getCurrentInfo,
   setCurrentIndex,
-  getNextTrack,
-  getPrevTrack,
+  commitIndex,
 } = usePlaylist();
 
 const { ecgCanvas, startEcg, stopEcg, wakeEcg } = useEcg(
@@ -648,7 +646,6 @@ const detailTrack = ref<MusicInfo | null>(null);
 const toastMsg = ref("");
 const toastType = ref<"success" | "error" | "loading">("success");
 const isFullscreen = ref(false);
-const activePlatform = ref("netease");
 
 // Refs
 const nowPlayingRef = ref<HTMLElement | null>(null);
@@ -864,6 +861,8 @@ watch(
 onBeforeUnmount(() => {
   document.removeEventListener("keydown", handleKeydown);
   window.removeEventListener("track-ended", handleTrackEnded);
+  window.removeEventListener("audio-error", handleAudioError);
+  cleanupFullscreenListener();
   // 清理所有 GSAP 动画，防止内存泄漏
   gsap.killTweensOf("*");
 });
@@ -871,24 +870,12 @@ onBeforeUnmount(() => {
 // 搜索
 const handleSearch = (keyword: string) => search(keyword);
 
-// 全屏切换
-const toggleFullscreen = async () => {
-  try {
-    if (isFullscreen.value) {
-      await window.api.exitFullscreen();
-    } else {
-      await window.api.setFullscreen(true);
-    }
-    isFullscreen.value = !isFullscreen.value;
-  } catch (e) {
-    console.error("全屏切换失败:", e);
-  }
-};
-
-// 监听全屏状态变化
-window.api.onFullscreenChange((fullscreen: boolean) => {
-  isFullscreen.value = fullscreen;
-});
+// 监听全屏状态变化（保存清理函数，onBeforeUnmount 统一释放）
+const cleanupFullscreenListener = window.api.onFullscreenChange(
+  (fullscreen: boolean) => {
+    isFullscreen.value = fullscreen;
+  },
+);
 
 // 监听键盘事件
 function handleKeydown(e: KeyboardEvent) {
@@ -1034,15 +1021,30 @@ const handleNext = async () => {
 // 监听歌曲结束事件，自动播放下一首
 async function handleTrackEnded(e: any) {
   const nextTrack = e.detail;
+  const nextIndex = e.nextIndex;
   console.log("[App] track-ended:", nextTrack?.name, "开始播放下一首");
   if (nextTrack) {
-    await doPlay(nextTrack, false);
+    const ok = await doPlay(nextTrack, false);
+    // 播放成功才提交队列索引；失败保留在原曲，下次重试不跳号
+    if (ok && typeof nextIndex === "number") {
+      commitIndex(nextIndex);
+    }
   }
 }
 window.addEventListener("track-ended", handleTrackEnded);
 
+// 音频层播放失败（解码/网络/格式不支持）——切歌 ABORTED 除外
+function handleAudioError(e: any) {
+  showToast("播放中断（" + (e.detail || "未知错误") + "），请重试或切换音源", "error");
+  setLoading(false);
+}
+window.addEventListener("audio-error", handleAudioError);
+
 // 实际播放逻辑
-const doPlay = async (track: MusicInfo, addToQueue: boolean = true) => {
+// 切歌序号：快速连点 A→B 时，A 的慢响应（链接/封面/歌词）一律丢弃，防止旧歌覆盖新歌
+let playSeq = 0;
+const doPlay = async (track: MusicInfo, addToQueue: boolean = true): Promise<boolean> => {
+  const seq = ++playSeq;
   try {
     // 设置播放队列
     if (addToQueue) {
@@ -1065,6 +1067,7 @@ const doPlay = async (track: MusicInfo, addToQueue: boolean = true) => {
     setLoading(true);
     showToast("正在获取播放链接…", "loading");
     const { url, error, hint } = await getMusicUrl(track);
+    if (seq !== playSeq) return false; // 已切到别的歌，丢弃本次结果
     if (!url) {
       urlFailCount++;
       // 有具体原因时优先显示（如「音源脚本版本过低」等确定性错误，等待无用）
@@ -1076,14 +1079,17 @@ const doPlay = async (track: MusicInfo, addToQueue: boolean = true) => {
         showToast("获取播放链接失败", "error");
       }
       setLoading(false);
-      return;
+      return false;
     }
     urlFailCount = 0; // 成功则重置计数
     showToast("正在播放");
     setCover("");
     await play(track, url);
+    if (seq !== playSeq) return false; // 播放期间又切了歌
+
     // 顺序获取封面，拿到就停
     const picUrl = await getPic(track).catch(() => "");
+    if (seq !== playSeq) return;
     if (picUrl) {
       setCover(picUrl);
     } else if (track.albumId) {
@@ -1091,13 +1097,19 @@ const doPlay = async (track: MusicInfo, addToQueue: boolean = true) => {
         `http://img1.kuwo.cn/star/albumcover/500/${track.albumId}/500.jpg`,
       );
     }
-    // 歌词单独异步，不阻塞
+    // 歌词单独异步，不阻塞（返回时校验序号，防止旧歌词覆盖新歌）
     getLyric(track)
-      .then((l) => setLyric(l.lyric, l.tlyric))
+      .then((l) => {
+        if (seq !== playSeq) return;
+        setLyric(l.lyric, l.tlyric);
+      })
       .catch(() => {});
+    return true;
   } catch (e: any) {
+    if (seq !== playSeq) return false;
     showToast("播放失败: " + (e.message || "未知错误"), "error");
     setLoading(false);
+    return false;
   }
 };
 
@@ -1439,7 +1451,7 @@ watch(
   --sb-scene: 180px;
   --sb-disc: 160px;
   --sb-cover: 150px;
-  --sb-cover-lg: 240px;
+  --sb-cover-lg: 170px;
   --sb-padding: 24px;
   --sb-width: 280px;
   width: var(--sb-width);
@@ -1467,7 +1479,7 @@ watch(
     --sb-scene: 150px;
     --sb-disc: 135px;
     --sb-cover: 130px;
-    --sb-cover-lg: 200px;
+    --sb-cover-lg: 150px;
     --sb-padding: 16px;
     --sb-width: 250px;
   }
@@ -1478,7 +1490,7 @@ watch(
     --sb-scene: 120px;
     --sb-disc: 108px;
     --sb-cover: 110px;
-    --sb-cover-lg: 170px;
+    --sb-cover-lg: 130px;
     --sb-padding: 12px;
     --sb-width: 210px;
   }
@@ -1489,7 +1501,7 @@ watch(
     --sb-scene: 100px;
     --sb-disc: 90px;
     --sb-cover: 95px;
-    --sb-cover-lg: 150px;
+    --sb-cover-lg: 112px;
     --sb-padding: 10px;
     --sb-width: 180px;
   }
@@ -1518,6 +1530,9 @@ watch(
   height: var(--sb-cover);
   min-width: var(--sb-cover);
   min-height: var(--sb-cover);
+  /* 展开/收起时尺寸平滑过渡（尺寸只由 CSS 控制，GSAP 不再缩放） */
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1), height 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    min-width 0.6s cubic-bezier(0.22, 1, 0.36, 1), min-height 0.6s cubic-bezier(0.22, 1, 0.36, 1);
   position: relative;
   cursor: pointer;
   flex-shrink: 0;
@@ -1536,6 +1551,8 @@ watch(
   height: var(--sb-cover-lg);
   min-width: var(--sb-cover-lg);
   min-height: var(--sb-cover-lg);
+  /* 旋转时方形的角会伸出盒子（对角线≈1.414×边长），留出间距避免盖住下方文字 */
+  margin-bottom: 36px;
 }
 .now-playing {
   text-align: left;
@@ -1551,7 +1568,10 @@ watch(
 .sidebar-main.layout-expanded .now-playing {
   text-align: center;
   padding-left: 0;
-  width: 100%;
+  width: auto;
+  max-width: 460px;
+  margin: 0 auto;
+  background: transparent;
 }
 .cover-3d {
   width: 100%;
@@ -1724,7 +1744,8 @@ watch(
   height: calc(var(--sb-scene) * 0.6);
   margin-bottom: calc(var(--sb-scene) * -0.8);
   z-index: 3;
-  position: static;
+  /* 恢复定位上下文：圆盘以场景底部中点为锚 = 封面中心（scene 负 margin 把封面拉到该点） */
+  position: relative;
 }
 .vinyl-disc {
   width: var(--sb-disc);
@@ -1736,30 +1757,23 @@ watch(
   filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.3));
   transition: all 0.3s ease;
 }
+/* 展开模式：圆盘与封面同心——锚定场景底部中点（即封面中心），
+   用 margin 而非 transform 定位，避免与 disc-playing-spin 旋转动画冲突 */
 .vinyl-sidebar.expanded .vinyl-disc {
-  width: calc(var(--sb-scene) * 0.6);
-  height: calc(var(--sb-scene) * 0.6);
+  width: calc(var(--sb-cover-lg) * 0.6);
+  height: calc(var(--sb-cover-lg) * 0.6);
   position: absolute;
-  top: 90px;
+  top: 100%;
   left: 50%;
-  margin-left: calc(var(--sb-scene) * -0.3);
+  margin-top: calc(var(--sb-cover-lg) * -0.3);
+  margin-left: calc(var(--sb-cover-lg) * -0.3);
   z-index: 10;
   filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.4));
 }
 .vinyl-sidebar.expanded {
   overflow: visible;
 }
-.disc-expanded-spin {
-  animation: expandedSpin 0.8s ease-out forwards;
-}
-@keyframes expandedSpin {
-  from {
-    transform: rotateZ(0deg);
-  }
-  to {
-    transform: rotateZ(360deg);
-  }
-}
+/* 暂停时唱片立即静止，不再触发一次性旋转 */
 .disc-playing-spin {
   animation: discSpin 4s linear infinite;
 }
@@ -1771,15 +1785,18 @@ watch(
     transform: rotateZ(360deg);
   }
 }
-.cover-expanded-spin {
+/* 播放中大封面与唱片同向旋转；暂停时类移除，立即静止 */
+/* 旋转放在内层 .cover-3d：与外层 .cover-large 的 GSAP 缩放分层，互不覆盖
+   播放中旋转，暂停时类移除 → 立即静止，尺寸/位置不变 */
+.cover-expanded-spin .cover-3d {
   animation: coverSpin 6s linear infinite;
 }
 @keyframes coverSpin {
   from {
-    transform: rotateZ(-15deg);
+    transform: rotateZ(0deg);
   }
   to {
-    transform: rotateZ(-375deg);
+    transform: rotateZ(-360deg);
   }
 }
 .disc-outer {

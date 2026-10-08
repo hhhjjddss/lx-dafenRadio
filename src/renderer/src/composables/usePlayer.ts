@@ -67,9 +67,9 @@ function initAudioAnalyser() {
 let fftDebugged = false
 function getFrequencyData(): Uint8Array | null {
   if (!analyser || !freqData) return null
-  // 确保 AudioContext 处于运行状态
+  // 确保 AudioContext 处于运行状态（仅在状态变化时调用一次，且捕获 rejection）
   if (audioCtx?.state === 'suspended') {
-    audioCtx.resume()
+    audioCtx.resume().catch(() => {})
   }
   analyser.getByteFrequencyData(freqData)
   // 调试：首次输出频谱数据
@@ -98,26 +98,21 @@ audio.addEventListener('loadedmetadata', () => {
   state.duration = audio.duration
 })
 
-// 调试：监听音频错误
+// 监听音频错误：合并调试与状态处理，统一通知上层
 audio.addEventListener('error', () => {
   const err = audio.error
   const codes: Record<number, string> = { 1: 'ABORTED', 2: 'NETWORK', 3: 'DECODE', 4: 'SRC_NOT_SUPPORTED' }
   console.error('[Audio] error code:', err?.code, codes[err?.code || 0] || 'UNKNOWN', 'src:', audio.src?.substring(0, 120))
+  state.isPlaying = false
+  // ABORTED 是切歌时的正常中断，不提示
+  if (err?.code && err.code !== 1) {
+    window.dispatchEvent(new CustomEvent('audio-error', { detail: codes[err.code] || 'UNKNOWN' }))
+  }
 })
 
 audio.addEventListener('canplay', () => {
   console.log('[Audio] canplay, duration:', audio.duration)
 })
-
-// 播放下一首（委托给 usePlaylist）
-const playNext = () => {
-  return playlist.getNextTrack(playMode.value)
-}
-
-// 播放上一首（委托给 usePlaylist）
-const playPrev = () => {
-  return playlist.getPrevTrack(playMode.value)
-}
 
 audio.addEventListener('ended', () => {
   const info = playlist.getCurrentInfo()
@@ -127,20 +122,17 @@ audio.addEventListener('ended', () => {
     audio.play().catch(() => {})
     return
   }
-  const nextTrack = playNext()
-  console.log('[Audio] nextTrack:', nextTrack?.name || 'null')
-  if (nextTrack) {
+  // 只计算不提交索引：播放成功后由上层 commitIndex，失败不跳号
+  const next = playlist.peekNextTrack(playMode.value)
+  console.log('[Audio] nextTrack:', next?.track.name || 'null')
+  if (next) {
     state.isPlaying = false
-    state.currentTrack = nextTrack
-    window.dispatchEvent(new CustomEvent('track-ended', { detail: nextTrack }))
+    state.currentTrack = next.track
+    window.dispatchEvent(new CustomEvent('track-ended', { detail: next.track, nextIndex: next.index }))
   } else {
     state.isPlaying = false
     state.currentTime = 0
   }
-})
-
-audio.addEventListener('error', () => {
-  state.isPlaying = false
 })
 
 export function usePlayer() {
@@ -176,8 +168,12 @@ export function usePlayer() {
 
   const resume = () => {
     if (!state.audioUrl) return
-    audio.play().catch(() => {})
-    state.isPlaying = true
+    audio.play()
+      .then(() => { state.isPlaying = true })
+      .catch(() => {
+        // 播放实际失败时不显示"播放中"
+        state.isPlaying = false
+      })
   }
 
   const togglePlay = () => {
@@ -221,6 +217,9 @@ export function usePlayer() {
   // 监听来自主进程的控制命令
   window.api.onPlayUrl((url) => {
     audio.src = url
+    // 外部命令播放同样要初始化 FFT，否则沉浸模式粒子/心电图静止
+    initAudioAnalyser()
+    if (audioCtx?.state === 'suspended') audioCtx.resume().catch(() => {})
     audio.play().then(() => {
       state.isPlaying = true
     }).catch(() => {})

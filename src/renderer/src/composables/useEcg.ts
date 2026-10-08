@@ -30,7 +30,8 @@ export function useEcg(getAudioEnergy: () => number, getFrequencyData: () => Uin
     const energy = getAudioEnergy()
     const freq = getFrequencyData()
 
-    currentEnergy += (energy - currentEnergy) * 0.15
+    // 保底最小能量 0.18：即使频谱数据为空（跨域限制等），也保证有小幅波动
+    currentEnergy += (Math.max(energy, 0.18) - currentEnergy) * 0.15
 
     let y = ECG_BASELINE
     const amp = currentEnergy * 60
@@ -225,9 +226,10 @@ export function useEcg(getAudioEnergy: () => number, getFrequencyData: () => Uin
     ecgSmoothPoints.length = 0
     ecgTime = 0
     currentEnergy = 0
-    // 淡出动画
+    // 淡出动画（先清理历史 tween，防止快速收展积累）
     const ecgContainer = ecgCanvas.value?.parentElement
     if (ecgContainer) {
+      gsap.killTweensOf(ecgContainer)
       gsap.to(ecgContainer, {
         autoAlpha: 0, y: 10, duration: 0.3, ease: 'power2.in'
       })

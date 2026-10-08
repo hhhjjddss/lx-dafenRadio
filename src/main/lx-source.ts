@@ -1,7 +1,8 @@
 import { app, dialog, BrowserWindow } from 'electron'
 import { join, basename, dirname } from 'path'
 import { is } from '@electron-toolkit/utils'
-import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync, unlinkSync } from 'fs'
+import { createHash } from 'crypto'
+import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync, unlinkSync, readdirSync, copyFileSync } from 'fs'
 import * as vm from 'vm'
 import * as crypto from 'crypto'
 import * as zlib from 'zlib'
@@ -10,10 +11,23 @@ import * as https from 'https'
 import { URL, URLSearchParams } from 'url'
 import axios from 'axios'
 
-// 将 LX 音源数据存储在 data 文件夹
-// 开发时: 项目根目录/data
-// 打包后: 安装目录/data (exe 同级目录)
-const PROJECT_DATA_DIR = join(is.dev ? process.cwd() : dirname(app.getPath('exe')), 'data')
+// 将 LX 音源数据存储在 userData/data 文件夹（打包后安装目录可能无写权限）
+const PROJECT_DATA_DIR = join(app.getPath('userData'), 'data')
+
+// 迁移旧版音源目录（项目根/data 或 安装目录/data → userData/data）
+try {
+  const legacyDir = join(is.dev ? process.cwd() : dirname(app.getPath('exe')), 'data', 'lx-sources')
+  const newDir = join(PROJECT_DATA_DIR, 'lx-sources')
+  if (existsSync(legacyDir) && !existsSync(newDir)) {
+    mkdirSync(newDir, { recursive: true })
+    for (const f of readdirSync(legacyDir)) {
+      copyFileSync(join(legacyDir, f), join(newDir, f))
+    }
+    console.log('[LxSource] 已迁移旧音源数据:', legacyDir, '→', newDir)
+  }
+} catch (e) {
+  console.warn('[LxSource] 旧数据迁移失败（不影响使用）:', e)
+}
 
 interface LxSourceMeta {
   name: string; description: string; version: string; author: string; homepage: string
@@ -240,6 +254,17 @@ export class LxSourceManager {
       utils: this.createLxUtils(),
     }
 
+    // 深冻结暴露给脚本的对象：防止脚本篡改 lx API，并收窄宿主对象逃逸面
+    const deepFreeze = (obj: any) => {
+      for (const key of Object.keys(obj)) {
+        const v = obj[key]
+        if (v && typeof v === 'object') deepFreeze(v)
+      }
+      Object.freeze(obj)
+      return obj
+    }
+    deepFreeze(lx)
+
     const sandbox: any = { globalThis: null, lx, console, setTimeout, clearTimeout, setInterval, clearInterval, Promise, URL, URLSearchParams, TextEncoder, TextDecoder,
       atob: (v: string) => Buffer.from(String(v || ''), 'base64').toString('binary'),
       btoa: (v: string) => Buffer.from(String(v || ''), 'binary').toString('base64'),
@@ -409,6 +434,27 @@ export class LxSourceManager {
     if (Buffer.byteLength(scriptText, 'utf8') > MAX_FILE_SIZE) throw new Error('音源文件过大（最大 2MB）')
 
     const metadata = this.parseScriptInfo(scriptText)
+
+    // 安全校验：音源脚本将在主进程沙箱中执行任意代码，导入前向用户确认来源与内容摘要
+    const sha256 = createHash('sha256').update(scriptText).digest('hex')
+    const { answer } = await dialog.showMessageBox({
+      type: 'warning',
+      title: '确认导入音源',
+      message: `确认导入该音源脚本？`,
+      detail:
+        `名称：${metadata.name || '未知'}\n` +
+        `作者：${metadata.author || '未知'}\n` +
+        `版本：${metadata.version || '未知'}\n` +
+        `来源：${url.trim()}\n` +
+        `SHA-256：${sha256.substring(0, 32)}…\n\n` +
+        `音源脚本包含可执行代码，请确认来源可信。恶意脚本可能危害系统安全。`,
+      buttons: ['取消', '确认导入'],
+      defaultId: 0,
+      cancelId: 0,
+      noLink: true,
+    })
+    if (answer !== 1) throw new Error('已取消导入')
+
     const urlPath = new URL(url).pathname
     const fallbackName = basename(urlPath) || 'remote-source.js'
     const fileName = (metadata.name || fallbackName).replace(/[\\/:*?"<>|]+/g, '-') + '.js'
@@ -506,8 +552,13 @@ export class LxSourceManager {
     console.log('[LX] getMusicUrl: 使用源', actionSource, '获取音乐URL，质量:', quality)
     this.lastSourceError = null
     const seen = new Set<string>()
+    const deadline = Date.now() + 20000 // 总预算 20s：避免 4 档降级 × 每档超时叠加导致长时间卡死
     for (const q of [quality, 'lossless', '320k', '128k']) {
       if (seen.has(q)) continue; seen.add(q)
+      if (Date.now() > deadline) {
+        console.warn('[LX] getMusicUrl: 总超时预算耗尽，停止降级尝试，已试到', q)
+        break
+      }
       try {
         console.log('[LX] getMusicUrl: 尝试质量', q)
         const { result } = await this.invokeAction('musicUrl', { ...musicInfo, quality: q, type: q })

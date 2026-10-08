@@ -37,8 +37,13 @@ async function loadFavorites(): Promise<void> {
 }
 
 // 保存到项目文件夹（JSON.parse/stringify 去掉 Vue 响应式代理）
+// 并发策略：保存中再次触发只置 dirty 标记，本次完成后用最新数据补写一次，避免静默丢写
+let pendingSave = false
 function saveFavorites(): void {
-  if (saving) return
+  if (saving) {
+    pendingSave = true
+    return
+  }
   saving = true
   try {
     if (window.api?.favoritesSave) {
@@ -47,13 +52,22 @@ function saveFavorites(): void {
       window.api.favoritesSave(plain).then(ok => {
         console.log('[Favorites] 保存结果:', ok, '共', plain.length, '首')
         saving = false
+        if (pendingSave) {
+          pendingSave = false
+          saveFavorites()
+        }
       }).catch((e: any) => {
         console.warn('[Favorites] 保存失败:', e)
         saving = false
+        if (pendingSave) {
+          pendingSave = false
+          saveFavorites()
+        }
       })
     } else {
       localStorage.setItem('dafen_favorites', JSON.stringify(favorites.value))
       saving = false
+      pendingSave = false
     }
   } catch (e) {
     console.warn('[Favorites] 保存异常:', e)

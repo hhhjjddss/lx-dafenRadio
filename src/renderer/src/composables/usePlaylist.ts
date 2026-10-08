@@ -26,8 +26,8 @@ export function usePlaylist() {
     }
   }
 
-  // 播放下一首
-  const getNextTrack = (playMode: PlayMode): MusicInfo | null => {
+  // 计算下一首但不提交索引（播放成功后再 commitIndex，避免失败跳号）
+  const peekNextTrack = (playMode: PlayMode): { track: MusicInfo; index: number } | null => {
     if (playQueue.length === 0) return null
 
     let nextIndex = -1
@@ -59,8 +59,22 @@ export function usePlaylist() {
         break
     }
 
-    currentIndex = nextIndex
-    return playQueue[currentIndex]
+    return { track: playQueue[nextIndex], index: nextIndex }
+  }
+
+  // 播放下一首
+  const getNextTrack = (playMode: PlayMode): MusicInfo | null => {
+    const next = peekNextTrack(playMode)
+    if (!next) return null
+    currentIndex = next.index
+    return next.track
+  }
+
+  // 播放成功后提交索引（配合 peekNextTrack 使用）
+  const commitIndex = (index: number) => {
+    if (index >= 0 && index < playQueue.length) {
+      currentIndex = index
+    }
   }
 
   // 播放上一首
@@ -99,6 +113,8 @@ export function usePlaylist() {
     setPlayQueue,
     getCurrentInfo,
     setCurrentIndex,
+    commitIndex,
+    peekNextTrack,
     getNextTrack,
     getPrevTrack
   }
